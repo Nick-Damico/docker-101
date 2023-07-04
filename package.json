@@ -1,0 +1,29 @@
+{
+  "name": "docker-101",
+  "version": "1.0.0",
+  "description": "Learning Docker Basics",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nick-Damico/docker-101.git"
+  },
+  "keywords": [
+    "docker",
+    "node.js",
+    "express",
+    "learning",
+    "education"
+  ],
+  "author": "Nick Damico",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Nick-Damico/docker-101/issues"
+  },
+  "homepage": "https://github.com/Nick-Damico/docker-101#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
