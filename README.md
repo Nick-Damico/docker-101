@@ -74,6 +74,9 @@ Docker solves this issue by packaging software so that it can run on any hardwar
 - **See All Containers**: `docker ps -a`
 - **Remove Container**: `docker rm <container_name>`
 - **Name Container**: `docker run -d -p 8000:8000 --name <container-name> <image_name>`
+- **prune dangling images**: `docker image prune`
+- **prune stopped containers**: `docker container prune`
+- **view volumes**: `docker volume ls`
 
 ## Dockerfile
 
@@ -103,3 +106,66 @@ Each of the following steps is considered a "layer". Docker will try to cache th
    1. With CMD: `docker run <id>`.
    2. Port forward the selected port from the Dockerfile: `docker run -p <local_port>:<docker_port> <id>`.
    3. Devj
+
+## Development Setup
+
+### Setup Database
+
+Instead of downloading a database, installing, configuring and then running the database as a service, we can
+use Docker offical images for a Database and run it in the container.
+
+[Use Volumes](https://docs.docker.com/storage/volumes/)
+
+- Create a volume for **data**.
+- Create one volume for **configuration**.
+
+```
+docker volume create mongodb
+docker volume create mongodb_config
+
+# Create network so application and database can talk with each other.
+docker network create mongodb
+
+docker run -it --rm -d -v mongodb:/data/db \
+  -v mongodb_config:/data/configdb -p 27017:27017 \
+  --network mongodb \
+  --name mongodb \
+  mongo
+```
+
+## Use Compose for local development
+
+This Compose file is super convenient as we do not have to type all the parameters to pass to the docker run command. We can declaratively do that in the Compose file.
+
+- exposing port 9229 allows for a remote debugger to be attached.
+- Setup yml file.
+- Run docker compose with yml configuration: `docker compose -f docker-compose.dev.yml up --build`
+
+```ymlversion: '3.8'
+services:
+ notes:
+  build:
+   context: .
+  ports:
+   - 8000:8000
+   - 9229:9229
+  environment:
+   - SERVER_PORT=8000
+   - CONNECTIONSTRING=mongodb://mongo:27017/notes
+  volumes:
+   - ./:/app
+   - /app/node_modules
+  command: npm run debug
+
+ mongo:
+  image: mongo:4.2.8
+  ports:
+   - 27017:27017
+  volumes:
+   - mongodb:/data/db
+   - mongodb_config:/data/configdb
+volumes:
+ mongodb:
+ mongodb_config:
+
+```
