@@ -1,2 +1,105 @@
 # docker-101
-Learning Docker 
+
+My goal is to learn a better way of developing, deploying, and testing my applications without the headache of getting my local environment switched around each time I jump into different projects. I also aim to better understand CI/CD.
+
+## Docker
+
+Docker is an open platform for developing, shipping, and running applications. It allows you to separate your applications from the infrastructure. Docker follows a client-server architecture.
+
+- **Documents**: [Docker Installation Guide for Ubuntu](https://docs.docker.com/desktop/install/ubuntu/)
+
+## Definitions
+
+- **Docker**: Docker is a way to package software so it can run on any hardware.
+- **Dockerfile**: A blueprint for building a Docker Image.
+- **Image**: A read-only template with instructions for creating a Docker Container.
+- **Container**: A running instance of a Docker Image/process, such as a Node application or Ruby application.
+
+## Docker File Format
+
+Each instruction in the Dockerfile is treated as a layer.
+
+- **FROM**: Defines a base for your image.
+- **RUN**: Executes a command in a new layer on top of the current image.
+- **WORKDIR**: Sets the working directory for any command executed in the Dockerfile.
+- **COPY**: Copies new files or directories from `<src>` to the container's filesystem at `<dest>`.
+- **CMD**: Specifies the default program that runs when you start the container image.
+
+Use the name `Dockerfile` without an extension. This default name allows you to simplify the command `docker build`.
+
+```Dockerfile
+# Below is a parse directive; include this comment.
+# This tells Docker what syntax to use when parsing the Dockerfile.
+
+# syntax=docker/dockerfile:1
+FROM ubuntu:22.04
+
+# Install app dependencies
+RUN apt-get update && apt-get install -y python3 python3-pip
+RUN pip install flask==2.1.*
+
+# Install app
+COPY hello.py /
+
+# Final configuration
+ENV FLASK_APP=hello
+EXPOSE 8000
+CMD flask run --host 0.0.0.0 --port 8000
+```
+
+## Example of Usage
+
+Let's say you build a Ruby app with some dependencies. You pass it off to a co-worker who has a different operating system version and a different version of Ruby installed. This can result in the application failing to build and run on their machine.
+
+Docker solves this issue by packaging software so that it can run on any hardware.
+
+# Commands
+
+- **Start Docker-Desktop CLI**: `systemctl --user start docker-desktop`
+- **Quit Docker-Desktop**: `systemctl --user stop docker-desktop`
+- **Upgrade Docker-Desktop**: `sudo apt-get install ./docker-desktop-<version>-<arch>.deb`
+- **Check Binary Versions**: `docker compose version`
+- **Docker Version**: `docker --version`
+- **Docker Version**: `docker version`
+
+## CLI COMMANDS
+
+- **docker ps**
+- **Add Image Tag**: `docker tag docker-node:latest node-docker:v1.0.0`
+- **Remove Tag**: `docker rmi docker-node:v1.0.0`
+- **Run Image**: `docker run docker-node`
+- **Port Forwarding**: `docker run --publish 8000:8000 docker-node` -> `docker run -p <local_port>:<container_port> <image>`
+- **Detached Mode**: `docker run -d -p 8000:8000 docker-node`
+- **Stop Container**: `docker stop <container_name>` -> Note that the name is randomly generated.
+- **See All Containers**: `docker ps -a`
+- **Remove Container**: `docker rm <container_name>`
+- **Name Container**: `docker run -d -p 8000:8000 --name <container-name> <image_name>`
+
+## Dockerfile
+
+- Contains code to build your Docker image.
+- Runs your app as a Docker container.
+
+## Setup
+
+Each of the following steps is considered a "layer". Docker will try to cache these if nothing has changed.
+
+1. Start with a `Dockerfile` in the root of the app.
+
+   1. Set the **baseImage** with the `FROM` keyword. It will be something like `FROM NODE:<version>`.
+   2. Add the app source code using `WORKDIR`. Think of this as changing directory (`CD`) into a directory.
+   3. Set up dependencies to be cached. Use `COPY package*.json ./`.
+   4. Install the dependencies in the container with `RUN npm install`.
+   5. Copy from `<local>` to `<container>` using `COPY . .`.
+   6. Set environment variables with `ENV`. For example, `ENV PORT=8080`.
+   7. Expose port 8080 with `EXPOSE 8080`.
+   8. Execute the command with `CMD ["npm", "start"]`.
+
+2. Build the Docker image.
+
+   1. Run `docker build -t ndamico28/demoapp:1.0`.
+
+3. Run the container.
+   1. With CMD: `docker run <id>`.
+   2. Port forward the selected port from the Dockerfile: `docker run -p <local_port>:<docker_port> <id>`.
+   3. Devj
