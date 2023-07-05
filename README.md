@@ -77,6 +77,8 @@ Docker solves this issue by packaging software so that it can run on any hardwar
 - **prune dangling images**: `docker image prune`
 - **prune stopped containers**: `docker container prune`
 - **view volumes**: `docker volume ls`
+- **compose up**: `docker compose -f docker-compose.dev.yml up --build`
+- **compose down**: `docker compose -f docker-compose.dev.yml down --rmi`
 
 ## Dockerfile
 
