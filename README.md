@@ -78,7 +78,9 @@ Docker solves this issue by packaging software so that it can run on any hardwar
 - **prune stopped containers**: `docker container prune`
 - **view volumes**: `docker volume ls`
 - **compose up**: `docker compose -f docker-compose.dev.yml up --build`
-- **compose down**: `docker compose -f docker-compose.dev.yml down --rmi`
+- **compose down**: `docker compose -f docker-compose.dev.yml down --rmi all`
+  **Testing**
+- **build image with testing**: `docker build -t node-docker --target test .`
 
 ## Dockerfile
 
@@ -169,5 +171,31 @@ services:
 volumes:
  mongodb:
  mongodb_config:
+
+```
+
+## Multi-stage Dockerfile for testing
+
+This approach will allow use to build our image with a mult-step process. It will run our tests and build
+out production image.
+
+```dockerfile
+# syntax=docker/dockerfile:1
+FROM node:18-alpine as base
+
+WORKDIR /code
+
+COPY package.json package.json
+COPY package-lock.json package-lock.json
+
+FROM base as test
+RUN npm ci
+COPY . .
+CMD ["npm", "run", "test"]
+
+FROM base as prod
+RUN npm ci --production
+COPY . .
+CMD ["node", "server.js"]
 
 ```
